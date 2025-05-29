@@ -1,6 +1,6 @@
 <?php
-use App\Database\UserDAO;
 use App\Database\TransactionDAO;
+use App\Database\UserDAO;
 use App\Models\Transaction;
 
 $userDao = new UserDAO();
@@ -12,13 +12,15 @@ $transaction_type = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_POST['user_id'];
-    $amount = $_POST['amount'];
+    $amount = (int) $_POST['amount'];
     $transaction_type = $_POST['transaction_type'];
 
     $transactionDao = new TransactionDAO();
-    $transactionDao->create(new Transaction(null, $user_id, $amount, $transaction_type, null));
+    $transactionDao->create(new Transaction(null, $user_id, $amount, $transaction_type, date('Y-m-d H:i:s')));    
+
     header('Location: /transactions');
 }
+
 ?>
 
 <h2>Create Transaction</h2>

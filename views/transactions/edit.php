@@ -14,7 +14,7 @@ $transaction_type = $transaction->getTransactionType();
 $created_at = $transaction->getCreatedAt();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $created_at = $_POST['created_at'];
+    $created_at = date('Y-m-d H:i:s', strtotime($_POST['created_at']));
     $transactionDao->updateDateOnly($id, $created_at);
     header('Location: /transactions');
     exit;
@@ -43,8 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <option value="withdrawal" <?= $transaction_type === 'withdrawal' ? 'selected' : '' ?>>Withdrawal</option>
     </select><br><br>
 
-    <label for="created_at">Transaction Date:</label><br>
-    <input type="datetime-local" id="created_at" name="created_at" value="<?= date('Y-m-d\TH:i', strtotime($created_at)) ?>" required><br><br>
+    <label for="created_at">Created At:</label><br>
+<input type="datetime-local" id="created_at" name="created_at" value="<?= date('Y-m-d\TH:i', strtotime($created_at)) ?>" required><br><br>
+
 
     <button type="submit">Save</button>
 </form>

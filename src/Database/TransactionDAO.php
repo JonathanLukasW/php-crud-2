@@ -2,9 +2,17 @@
 namespace App\Database;
 
 use App\Models\Transaction;
+use PDO;
 
 class TransactionDAO extends Connection
 {
+    private PDO $pdo;
+
+    public function __construct()
+    {
+        $this->pdo = self::getInstance();
+    }
+
     public function all(): array
     {
         $sql = 'SELECT * FROM transactions';
@@ -37,15 +45,6 @@ class TransactionDAO extends Connection
             $transaction->getTransactionType(),
             $transaction->getCreatedAt()
         ]);
-
-        // Update balance user
-        $amount = $transaction->getAmount();
-        $userId = $transaction->getUserId();
-        if ($transaction->getTransactionType() === 'deposit') {
-            $this->pdo->prepare('UPDATE users SET balance = balance + ? WHERE id = ?')->execute([$amount, $userId]);
-        } elseif ($transaction->getTransactionType() === 'withdrawal') {
-            $this->pdo->prepare('UPDATE users SET balance = balance - ? WHERE id = ?')->execute([$amount, $userId]);
-        }
     }
 
     public function update(Transaction $transaction)
@@ -58,14 +57,6 @@ class TransactionDAO extends Connection
     public function delete(int $id)
     {
         $sql = 'DELETE FROM transactions WHERE id = ?';
-        $params = [$id];
+        $params
 
-        return self::query($sql, $params);
-    }
-
-    public function updateDateOnly($id, $created_at)
-    {
-        $stmt = $this->pdo->prepare('UPDATE transactions SET created_at = ? WHERE id = ?');
-        $stmt->execute([$created_at, $id]);
-    }
 }
