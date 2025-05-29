@@ -10,7 +10,7 @@ class TransactionDAO extends Connection
 
     public function __construct()
     {
-        $this->pdo = self::getInstance();
+        $this->pdo = self::getDB();
     }
 
     public function all(): array
@@ -38,6 +38,7 @@ class TransactionDAO extends Connection
 
     public function create(Transaction $transaction)
     {
+        // Simpan transaksi
         $stmt = $this->pdo->prepare('INSERT INTO transactions (user_id, amount, transaction_type, created_at) VALUES (?, ?, ?, ?)');
         $stmt->execute([
             $transaction->getUserId(),
@@ -45,6 +46,16 @@ class TransactionDAO extends Connection
             $transaction->getTransactionType(),
             $transaction->getCreatedAt()
         ]);
+
+        // Update balance user
+        $amount = $transaction->getAmount();
+        $userId = $transaction->getUserId();
+
+        if ($transaction->getTransactionType() === 'deposit') {
+            $this->pdo->prepare('UPDATE users SET balance = balance + ? WHERE id = ?')->execute([$amount, $userId]);
+        } else if ($transaction->getTransactionType() === 'withdrawal') {
+            $this->pdo->prepare('UPDATE users SET balance = balance - ? WHERE id = ?')->execute([$amount, $userId]);
+        }
     }
 
     public function update(Transaction $transaction)
@@ -57,6 +68,14 @@ class TransactionDAO extends Connection
     public function delete(int $id)
     {
         $sql = 'DELETE FROM transactions WHERE id = ?';
-        $params
+        $params = [$id];
+        return self::query($sql, $params);
+    }
 
+    public function updateDateOnly(int $id, string $created_at)
+    {
+        $sql = 'UPDATE transactions SET created_at = ? WHERE id = ?';
+        $params = [$created_at, $id];
+        return $this->pdo->prepare($sql)->execute($params);
+    }
 }

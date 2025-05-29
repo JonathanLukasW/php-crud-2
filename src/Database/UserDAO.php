@@ -11,7 +11,7 @@ class UserDAO extends Connection
         $data = self::query($sql);
         $users = [];
         foreach ($data as $row) {
-            $users[] = new User($row['id'], $row['email'], $row['password'], $row['name'], $row['created_at']);
+            $users[] = new User($row['id'], $row['email'], $row['password'], $row['name'], $row['created_at'], $row['balance']);
         }
         return $users;
     }
@@ -23,7 +23,7 @@ class UserDAO extends Connection
         $data = self::query($sql, $params);
 
         if (count($data) > 0) {
-            return new User($data[0]['id'], $data[0]['email'], $data[0]['password'], $data[0]['name'], $data[0]['created_at']);
+            return new User($data[0]['id'], $data[0]['email'], $data[0]['password'], $data[0]['name'], $data[0]['created_at'], $data[0]['balance']);
         }
         return null;
     }
@@ -35,15 +35,31 @@ class UserDAO extends Connection
         return self::query($sql, $params);
     }
 
-    public function update(User $user) {
-        $sql = "UPDATE users SET email = ?, password = ?, name = ? WHERE id = ?";
+    public function update(User $user)
+    {
+        $sql = 'UPDATE users SET email = ?, password = ?, name = ? WHERE id = ?';
         $params = [$user->getEmail(), $user->getPassword(), $user->getName(), $user->getId()];
         return self::query($sql, $params);
     }
 
-    public function delete(int $id) {
-        $sql = "DELETE FROM users WHERE id = ?";
+    public function delete(int $id)
+    {
+        $sql = 'DELETE FROM users WHERE id = ?';
         $params = [$id];
+        return self::query($sql, $params);
+    }
+
+    public function updateBalance(int $userId, float $amount, string $type)
+    {
+        if ($type === 'deposit') {
+            $sql = 'UPDATE users SET balance = balance + ? WHERE id = ?';
+        } elseif ($type === 'withdrawal') {
+            $sql = 'UPDATE users SET balance = balance - ? WHERE id = ?';
+        } else {
+            return false;  // Invalid transaction type
+        }
+
+        $params = [$amount, $userId];
         return self::query($sql, $params);
     }
 }

@@ -10,7 +10,7 @@ class Connection
     private static $user = 'root';
     private static $password = '';
 
-    private static function getDB()
+    public static function getDB()
     {
         if (!isset(self::$db)) {
             try {
