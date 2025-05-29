@@ -1,0 +1,18 @@
+{
+    "name": "user/php-crud-2",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "jonathanlukas17116",
+            "email": "jonathanlukas17116@gmail.com"
+        }
+    ],
+    "require": {
+        "altorouter/altorouter": "^2.0"
+    }
+}
